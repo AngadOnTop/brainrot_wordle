@@ -12,6 +12,7 @@ function Game() {
     const [currentGuess, setCurrentGuess] = useState("")
     const [currentRow, setCurrentRow] = useState(0)
     const [revealedRow, setRevealedRow] = useState(-1)
+    const [hintUsed, setHintUsed] = useState(false)
 
     const WORD_LENGTH = chosenWord.length
 
@@ -133,6 +134,23 @@ function Game() {
         processInput(value);
     };
 
+    const hasWon = guesses.includes(chosenWord);
+    const hasLost = currentRow >= 6 && !hasWon;
+
+    const handleHint = () => {
+        if (hintUsed || hasWon || hasLost) return;
+        // Reveal the next missing letter position (skipping spaces)
+        const nonSpaceIndices = [];
+        for (let i = 0; i < chosenWord.length; i++) {
+            if (chosenWord[i] !== ' ') nonSpaceIndices.push(i);
+        }
+        const targetLength = nonSpaceIndices.length;
+        if (currentGuess.length >= targetLength) return;
+        const revealChar = chosenWord[nonSpaceIndices[currentGuess.length]];
+        setCurrentGuess(currentGuess + revealChar.toUpperCase());
+        setHintUsed(true);
+    };
+
     const letterStatuses = computeLetterStatuses();
 
     const firstRowKeys = ['Q','W','E','R','T','Y','U','I','O','P'];
@@ -157,11 +175,20 @@ function Game() {
         );
     };
 
-    const hasWon = guesses.includes(chosenWord);
-    const hasLost = currentRow >= 6 && !hasWon;
-
     return (
         <>
+            <div className="topbar">
+                <div className="spacer" />
+                <button
+                    className={`hint-btn${hintUsed ? ' used' : ''}`}
+                    onClick={handleHint}
+                    disabled={hintUsed || hasWon || hasLost}
+                    aria-label="Reveal one letter"
+                    title={hintUsed ? 'Hint used' : 'Reveal one letter'}
+                >
+                    💡 Hint
+                </button>
+            </div>
             <h1 className="title">Brainrot Wordle</h1>
             {hasLost && (
                 <div className="banner banner-loss">

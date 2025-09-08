@@ -11,6 +11,37 @@ body {
     flex-direction: column;
 }
 
+.topbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 12px 0;
+}
+
+.hint-btn {
+    appearance: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(250, 204, 21, 0.15), rgba(17, 24, 39, 0.5));
+    color: #fde68a;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    transition: transform 120ms ease, filter 160ms ease, background-color 160ms ease;
+}
+
+.hint-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.hint-btn:disabled,
+.hint-btn.used {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .cell.space {
     border: none;
     background: transparent;
