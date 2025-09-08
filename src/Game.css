@@ -11,6 +11,21 @@ body {
     flex-direction: column;
 }
 
+.home {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.home .topbar {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    right: 12px;
+}
+
 .topbar {
     display: flex;
     justify-content: space-between;
