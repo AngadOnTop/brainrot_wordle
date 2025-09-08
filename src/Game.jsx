@@ -190,7 +190,7 @@ function Game() {
     return (
         <>
             <div className="topbar">
-                <div className="spacer" />
+                <div className="brand">made by Xoro88</div>
                 <button
                     className={`hint-btn${hintUsed ? ' used' : ''}`}
                     onClick={handleHint}
