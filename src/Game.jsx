@@ -157,9 +157,18 @@ function Game() {
         );
     };
 
+    const hasWon = guesses.includes(chosenWord);
+    const hasLost = currentRow >= 6 && !hasWon;
+
     return (
         <>
             <h1 className="title">Brainrot Wordle</h1>
+            {hasLost && (
+                <div className="banner banner-loss">
+                    <span>Out of tries. Solution:</span>
+                    <strong className="solution">{chosenWord}</strong>
+                </div>
+            )}
             <div className="game">
                 <div className="grid">{grid}</div>
             </div>
