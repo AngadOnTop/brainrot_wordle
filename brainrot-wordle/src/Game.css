@@ -1,3 +1,9 @@
+.cell.space {
+    border: none;
+    background: none;
+    width: 20px;
+}
+
 .game {
     display: flex;
     justify-content: center;
@@ -6,9 +12,8 @@
 }
 
 .title {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+    text-align: center;
+    margin-top: auto;
     font-size: 4rem;
 }
 
@@ -21,6 +26,7 @@
 .row {
     display: flex;
     gap: 5px;
+    margin-right: 20px;
 }
 
 .cell {

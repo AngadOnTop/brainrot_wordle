@@ -2,7 +2,7 @@ import { useState } from "react"
 import './Game.css'
 
 function Game() {
-    const [chosenWord] = useState("BOMBOCLAUT")
+    const [chosenWord] = useState("BOMBO CLAUT")
     const [guesses, setGuesses] = useState(Array(6).fill(""))
     const [currentGuess, setCurrentGuess] = useState("")
     const [currentRow, setCurrentRow] = useState(0)
@@ -10,36 +10,72 @@ function Game() {
     const WORD_LENGTH = chosenWord.length
 
     const handleKeyup = (e) => {
-        if (currentRow >= 6) return; 
+        if (currentRow >= 6) return;
 
         if (e.key === 'Enter') {
-            if (currentGuess.length === WORD_LENGTH) {
+            // Only allow submission if all non-space positions are filled
+            const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
+            if (currentGuess.length === nonSpaceLength) {
+                // Insert spaces in correct positions
+                let formattedGuess = '';
+                let guessIndex = 0;
+                
+                for (let i = 0; i < WORD_LENGTH; i++) {
+                    if (chosenWord[i] === ' ') {
+                        formattedGuess += ' ';
+                    } else {
+                        formattedGuess += currentGuess[guessIndex];
+                        guessIndex++;
+                    }
+                }
+
                 const newGuesses = [...guesses];
-                newGuesses[currentRow] = currentGuess;
+                newGuesses[currentRow] = formattedGuess;
                 setGuesses(newGuesses);
                 setCurrentRow(currentRow + 1);
                 setCurrentGuess("");
             }
         } else if (e.key === 'Backspace') {
             setCurrentGuess(currentGuess.slice(0, -1));
-        } else if (currentGuess.length < WORD_LENGTH && e.key.match(/^[a-zA-Z]$/)) {
-            setCurrentGuess(currentGuess + e.key.toUpperCase());
+        } else if (e.key.match(/^[a-zA-Z]$/)) {
+            const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
+            if (currentGuess.length < nonSpaceLength) {
+                setCurrentGuess(currentGuess + e.key.toUpperCase());
+            }
         }
     };
 
     const grid = guesses.map((guess, i) => {
-        const row = []
-        for (let j = 0; j < WORD_LENGTH; j++ ) {
-            let letter = i === currentRow ? currentGuess[j] : guess[j]
-            let className = "cell"
+        const row = [];
+        let guessIndex = 0;
+        
+        for (let j = 0; j < WORD_LENGTH; j++) {
+            let letter;
+            if (i === currentRow) {
+                // For current row, map currentGuess to non-space positions
+                if (chosenWord[j] === ' ') {
+                    letter = ' ';
+                } else if (guessIndex < currentGuess.length) {
+                    letter = currentGuess[guessIndex++];
+                } else {
+                    letter = '';
+                }
+            } else {
+                letter = guess[j];
+            }
+
+            let className = "cell";
+            if (chosenWord[j] === ' ') {
+                className += " space";
+            }
 
             if (i < currentRow) {
                 if (letter === chosenWord[j]) {
-                    className += " correct"
+                    className += " correct";
                 } else if (chosenWord.includes(letter)) {
-                    className += " present"
+                    className += " present";
                 } else {
-                    className += " absent"
+                    className += " absent";
                 }
             }
 
@@ -47,9 +83,9 @@ function Game() {
                 <div key={j} className={className}>
                     {letter || ""}
                 </div>
-            )
+            );
         }
-    return <div key={i} className="row">{row}</div>
+        return <div key={i} className="row">{row}</div>;
     })
 
     return (
