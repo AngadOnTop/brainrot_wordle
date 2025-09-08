@@ -1,8 +1,14 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import words from "./words.js"
 import './Game.css'
 
 function Game() {
+    const gameRef = useRef(null)
+
+    useEffect(() => {
+        gameRef.current?.focus()
+    })
+
     const [chosenWord] = useState(() => {
         const randomIndex = Math.floor(Math.random() * words.length)
         console.log(words[randomIndex])
