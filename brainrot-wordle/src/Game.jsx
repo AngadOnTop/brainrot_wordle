@@ -1,14 +1,8 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import words from "./words.js"
 import './Game.css'
 
 function Game() {
-    const gameRef = useRef(null)
-
-    useEffect(() => {
-        gameRef.current?.focus()
-    })
-
     const [chosenWord] = useState(() => {
         const randomIndex = Math.floor(Math.random() * words.length)
         console.log(words[randomIndex])
@@ -20,39 +14,44 @@ function Game() {
 
     const WORD_LENGTH = chosenWord.length
 
-    const handleKeyup = (e) => {
-        if (currentRow >= 6) return;
+    useEffect(() => {
+        const handleKeyup = (e) => {
+            if (currentRow >= 6) return;
 
-        if (e.key === 'Enter') {
-            const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
-            if (currentGuess.length === nonSpaceLength) {
-                let formattedGuess = '';
-                let guessIndex = 0;
-                
-                for (let i = 0; i < WORD_LENGTH; i++) {
-                    if (chosenWord[i] === ' ') {
-                        formattedGuess += ' ';
-                    } else {
-                        formattedGuess += currentGuess[guessIndex];
-                        guessIndex++;
+            if (e.key === 'Enter') {
+                const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
+                if (currentGuess.length === nonSpaceLength) {
+                    let formattedGuess = '';
+                    let guessIndex = 0;
+                    
+                    for (let i = 0; i < WORD_LENGTH; i++) {
+                        if (chosenWord[i] === ' ') {
+                            formattedGuess += ' ';
+                        } else {
+                            formattedGuess += currentGuess[guessIndex];
+                            guessIndex++;
+                        }
                     }
-                }
 
-                const newGuesses = [...guesses];
-                newGuesses[currentRow] = formattedGuess;
-                setGuesses(newGuesses);
-                setCurrentRow(currentRow + 1);
-                setCurrentGuess("");
+                    const newGuesses = [...guesses];
+                    newGuesses[currentRow] = formattedGuess;
+                    setGuesses(newGuesses);
+                    setCurrentRow(currentRow + 1);
+                    setCurrentGuess("");
+                }
+            } else if (e.key === 'Backspace') {
+                setCurrentGuess(currentGuess.slice(0, -1));
+            } else if (e.key.match(/^[a-zA-Z]$/)) {
+                const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
+                if (currentGuess.length < nonSpaceLength) {
+                    setCurrentGuess(currentGuess + e.key.toUpperCase());
+                }
             }
-        } else if (e.key === 'Backspace') {
-            setCurrentGuess(currentGuess.slice(0, -1));
-        } else if (e.key.match(/^[a-zA-Z]$/)) {
-            const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
-            if (currentGuess.length < nonSpaceLength) {
-                setCurrentGuess(currentGuess + e.key.toUpperCase());
-            }
-        }
-    };
+        };
+
+        window.addEventListener('keyup', handleKeyup);
+        return () => window.removeEventListener('keyup', handleKeyup);
+    }, [currentGuess, currentRow, chosenWord, guesses, WORD_LENGTH]);
 
     const grid = guesses.map((guess, i) => {
         const row = [];
@@ -99,12 +98,11 @@ function Game() {
     return (
         <>
             <h1 className="title">Brainrot Wordle</h1>
-            <div className="game" onKeyUp={handleKeyup} tabIndex="0">
+            <div className="game">
                 <div className="grid">{grid}</div>
             </div>
         </>
     )
 }
-
 
 export default Game
