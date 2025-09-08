@@ -1,7 +1,8 @@
 import { useState } from "react"
+import './Game.css'
 
 function Game() {
-    const [chosenWord] = useState("RIZZLER")
+    const [chosenWord] = useState("BOMBOCLAUT")
     const [guesses, setGuesses] = useState(Array(6).fill(""))
     const [currentGuess, setCurrentGuess] = useState("")
     const [currentRow, setCurrentRow] = useState(0)
@@ -12,7 +13,7 @@ function Game() {
         if (currentRow >= 6) return; 
 
         if (e.key === 'Enter') {
-            if (currentGuess.length === wordLength) {
+            if (currentGuess.length === WORD_LENGTH) {
                 const newGuesses = [...guesses];
                 newGuesses[currentRow] = currentGuess;
                 setGuesses(newGuesses);
@@ -21,7 +22,7 @@ function Game() {
             }
         } else if (e.key === 'Backspace') {
             setCurrentGuess(currentGuess.slice(0, -1));
-        } else if (currentGuess.length < wordLength && e.key.match(/^[a-zA-Z]$/)) {
+        } else if (currentGuess.length < WORD_LENGTH && e.key.match(/^[a-zA-Z]$/)) {
             setCurrentGuess(currentGuess + e.key.toUpperCase());
         }
     };
@@ -33,7 +34,7 @@ function Game() {
             let className = "cell"
 
             if (i < currentRow) {
-                if (letter = chosenWord[j]) {
+                if (letter === chosenWord[j]) {
                     className += " correct"
                 } else if (chosenWord.includes(letter)) {
                     className += " present"
@@ -52,9 +53,12 @@ function Game() {
     })
 
     return (
-        <div className="game" onKeyUp={handleKeyup} tabIndex="0">
-            <div className="grid">{grid}</div>
-        </div>
+        <>
+            <h1 className="title">Brainrot Wordle</h1>
+            <div className="game" onKeyUp={handleKeyup} tabIndex="0">
+                <div className="grid">{grid}</div>
+            </div>
+        </>
     )
 }
 
