@@ -1,8 +1,13 @@
 import { useState } from "react"
+import words from "./words.js"
 import './Game.css'
 
 function Game() {
-    const [chosenWord] = useState("BOMBO CLAUT")
+    const [chosenWord] = useState(() => {
+        const randomIndex = Math.floor(Math.random() * words.length)
+        console.log(words[randomIndex])
+        return words[randomIndex]
+    })
     const [guesses, setGuesses] = useState(Array(6).fill(""))
     const [currentGuess, setCurrentGuess] = useState("")
     const [currentRow, setCurrentRow] = useState(0)
