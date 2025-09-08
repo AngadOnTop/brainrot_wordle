@@ -139,7 +139,6 @@ function Game() {
 
     const handleHint = () => {
         if (hintUsed || hasWon || hasLost) return;
-        // Reveal the next missing letter position (skipping spaces)
         const nonSpaceIndices = [];
         for (let i = 0; i < chosenWord.length; i++) {
             if (chosenWord[i] !== ' ') nonSpaceIndices.push(i);
@@ -190,7 +189,7 @@ function Game() {
     return (
         <>
             <div className="topbar">
-                <div className="brand">made by Xoro88</div>
+                <div className="brand">made by Angad (Xoro88)</div>
                 <button
                     className={`hint-btn${hintUsed ? ' used' : ''}`}
                     onClick={handleHint}
