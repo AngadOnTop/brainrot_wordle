@@ -131,7 +131,8 @@ const GENZ_WORDS = [
   "BUILT LIKE",
   "SKRUNKLY",
   "ZESTY",
-  "SNACC"
+  "SNACC",
+  "SKIBIDI"
 ];
 
 export default GENZ_WORDS
