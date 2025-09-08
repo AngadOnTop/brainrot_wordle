@@ -11,47 +11,80 @@ function Game() {
     const [guesses, setGuesses] = useState(Array(6).fill(""))
     const [currentGuess, setCurrentGuess] = useState("")
     const [currentRow, setCurrentRow] = useState(0)
+    const [revealedRow, setRevealedRow] = useState(-1)
 
     const WORD_LENGTH = chosenWord.length
 
+    const processInput = (inputKey) => {
+        if (currentRow >= 6) return;
+
+        if (inputKey === 'Enter') {
+            const targetLength = chosenWord.replace(/\s/g, '').length;
+            if (currentGuess.length === targetLength) {
+                let formattedGuess = '';
+                let guessCursor = 0;
+
+                for (let i = 0; i < WORD_LENGTH; i++) {
+                    if (chosenWord[i] === ' ') {
+                        formattedGuess += ' ';
+                    } else {
+                        formattedGuess += currentGuess[guessCursor];
+                        guessCursor++;
+                    }
+                }
+
+                const nextGuesses = [...guesses];
+                nextGuesses[currentRow] = formattedGuess;
+                setGuesses(nextGuesses);
+                setRevealedRow(currentRow);
+                setCurrentRow(currentRow + 1);
+                setCurrentGuess("");
+
+                const revealDurationMs = 600 + 90 * WORD_LENGTH;
+                window.setTimeout(() => setRevealedRow(-1), revealDurationMs);
+            }
+        } else if (inputKey === 'Backspace') {
+            setCurrentGuess(currentGuess.slice(0, -1));
+        } else if (/^[a-zA-Z]$/.test(inputKey)) {
+            const targetLength = chosenWord.replace(/\s/g, '').length;
+            if (currentGuess.length < targetLength) {
+                setCurrentGuess(currentGuess + inputKey.toUpperCase());
+            }
+        }
+    };
+
     useEffect(() => {
         const handleKeyup = (e) => {
-            if (currentRow >= 6) return;
-
-            if (e.key === 'Enter') {
-                const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
-                if (currentGuess.length === nonSpaceLength) {
-                    let formattedGuess = '';
-                    let guessIndex = 0;
-                    
-                    for (let i = 0; i < WORD_LENGTH; i++) {
-                        if (chosenWord[i] === ' ') {
-                            formattedGuess += ' ';
-                        } else {
-                            formattedGuess += currentGuess[guessIndex];
-                            guessIndex++;
-                        }
-                    }
-
-                    const newGuesses = [...guesses];
-                    newGuesses[currentRow] = formattedGuess;
-                    setGuesses(newGuesses);
-                    setCurrentRow(currentRow + 1);
-                    setCurrentGuess("");
-                }
-            } else if (e.key === 'Backspace') {
-                setCurrentGuess(currentGuess.slice(0, -1));
-            } else if (e.key.match(/^[a-zA-Z]$/)) {
-                const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
-                if (currentGuess.length < nonSpaceLength) {
-                    setCurrentGuess(currentGuess + e.key.toUpperCase());
-                }
-            }
+            processInput(e.key);
         };
 
         window.addEventListener('keyup', handleKeyup);
         return () => window.removeEventListener('keyup', handleKeyup);
     }, [currentGuess, currentRow, chosenWord, guesses, WORD_LENGTH]);
+
+    const computeLetterStatuses = () => {
+        const statusByLetter = {};
+        for (let i = 0; i < currentRow; i++) {
+            const guessRow = guesses[i] || '';
+            for (let j = 0; j < WORD_LENGTH; j++) {
+                const letter = guessRow[j];
+                if (!letter || letter === ' ') continue;
+
+                let status = 'absent';
+                if (letter === chosenWord[j]) {
+                    status = 'correct';
+                } else if (chosenWord.includes(letter)) {
+                    status = 'present';
+                }
+
+                const previous = statusByLetter[letter];
+                if (previous === 'correct') continue;
+                if (previous === 'present' && status === 'absent') continue;
+                statusByLetter[letter] = status;
+            }
+        }
+        return statusByLetter;
+    };
 
     const grid = guesses.map((guess, i) => {
         const row = [];
@@ -87,19 +120,59 @@ function Game() {
             }
 
             row.push(
-                <div key={j} className={className}>
+                <div key={j} className={className} style={{ "--idx": j }}>
                     {letter || ""}
                 </div>
             );
         }
-        return <div key={i} className="row">{row}</div>;
+        const rowClassName = `row${i === revealedRow ? ' reveal' : ''}`;
+        return <div key={i} className={rowClassName}>{row}</div>;
     })
+
+    const onKeyClick = (value) => {
+        processInput(value);
+    };
+
+    const letterStatuses = computeLetterStatuses();
+
+    const firstRowKeys = ['Q','W','E','R','T','Y','U','I','O','P'];
+    const secondRowKeys = ['A','S','D','F','G','H','J','K','L'];
+    const thirdRowKeys = ['Enter','Z','X','C','V','B','N','M','Backspace'];
+
+    const renderKey = (keyLabel) => {
+        const isLetter = /^[A-Z]$/.test(keyLabel);
+        const letterKey = isLetter ? keyLabel : undefined;
+        const statusClass = letterKey ? (letterStatuses[letterKey] || '') : '';
+        const wideClass = (keyLabel === 'Enter' || keyLabel === 'Backspace') ? ' wide' : '';
+        const display = keyLabel === 'Backspace' ? '⌫' : keyLabel;
+        return (
+            <button
+                key={keyLabel}
+                className={`key ${statusClass}${wideClass}`}
+                onClick={() => onKeyClick(keyLabel)}
+                aria-label={keyLabel}
+            >
+                {display}
+            </button>
+        );
+    };
 
     return (
         <>
             <h1 className="title">Brainrot Wordle</h1>
             <div className="game">
                 <div className="grid">{grid}</div>
+            </div>
+            <div className="keyboard">
+                <div className="keyboard-row">
+                    {firstRowKeys.map(renderKey)}
+                </div>
+                <div className="keyboard-row">
+                    {secondRowKeys.map(renderKey)}
+                </div>
+                <div className="keyboard-row">
+                    {thirdRowKeys.map(renderKey)}
+                </div>
             </div>
         </>
     )
