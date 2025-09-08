@@ -18,10 +18,8 @@ function Game() {
         if (currentRow >= 6) return;
 
         if (e.key === 'Enter') {
-            // Only allow submission if all non-space positions are filled
             const nonSpaceLength = chosenWord.replace(/\s/g, '').length;
             if (currentGuess.length === nonSpaceLength) {
-                // Insert spaces in correct positions
                 let formattedGuess = '';
                 let guessIndex = 0;
                 
@@ -57,7 +55,6 @@ function Game() {
         for (let j = 0; j < WORD_LENGTH; j++) {
             let letter;
             if (i === currentRow) {
-                // For current row, map currentGuess to non-space positions
                 if (chosenWord[j] === ' ') {
                     letter = ' ';
                 } else if (guessIndex < currentGuess.length) {
