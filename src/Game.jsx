@@ -197,6 +197,7 @@ function Game() {
                     disabled={hintUsed || hasWon || hasLost}
                     aria-label="Reveal one letter"
                     title={hintUsed ? 'Hint used' : 'Reveal one letter'}
+                    data-tip={hintUsed ? 'Hint used' : 'LOL is it that hard to guess the word?, ok here is a hint, but only 1 :)'}
                 >
                     💡 Hint
                 </button>
