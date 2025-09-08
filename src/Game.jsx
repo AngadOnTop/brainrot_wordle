@@ -3,7 +3,7 @@ import words from "./words.js"
 import './Game.css'
 
 function Game() {
-    const [chosenWord] = useState(() => {
+    const [chosenWord, setChosenWord] = useState(() => {
         const randomIndex = Math.floor(Math.random() * words.length)
         console.log(words[randomIndex])
         return words[randomIndex]
@@ -151,6 +151,18 @@ function Game() {
         setHintUsed(true);
     };
 
+    const resetGame = () => {
+        const randomIndex = Math.floor(Math.random() * words.length)
+        const nextWord = words[randomIndex]
+        console.log(nextWord)
+        setChosenWord(nextWord)
+        setGuesses(Array(6).fill(""))
+        setCurrentGuess("")
+        setCurrentRow(0)
+        setRevealedRow(-1)
+        setHintUsed(false)
+    };
+
     const letterStatuses = computeLetterStatuses();
 
     const firstRowKeys = ['Q','W','E','R','T','Y','U','I','O','P'];
@@ -199,6 +211,11 @@ function Game() {
             <div className="game">
                 <div className="grid">{grid}</div>
             </div>
+            {(hasWon || hasLost) && (
+                <div className="actions">
+                    <button className="btn" onClick={resetGame}>New Game</button>
+                </div>
+            )}
             <div className="keyboard">
                 <div className="keyboard-row">
                     {firstRowKeys.map(renderKey)}
