@@ -1,32 +1,33 @@
 import { useEffect, useState } from "react"
-import words from "./words.js"
+import GENZ_DICTIONARY from "./words.js"
 import './Game.css'
 
 function Game() {
-    const [chosenWord, setChosenWord] = useState(() => {
-        const randomIndex = Math.floor(Math.random() * words.length)
-        console.log(words[randomIndex])
-        return words[randomIndex]
+    const [chosenWordKey, setChosenWordKey] = useState(() => {
+        const keys = Object.keys(GENZ_DICTIONARY)
+        const randomIndex = Math.floor(Math.random() * keys.length)
+        console.log(keys[randomIndex])
+        return keys[randomIndex]
     })
     const [guesses, setGuesses] = useState(Array(6).fill(""))
     const [currentGuess, setCurrentGuess] = useState("")
     const [currentRow, setCurrentRow] = useState(0)
     const [revealedRow, setRevealedRow] = useState(-1)
-    const [hintUsed, setHintUsed] = useState(false)
+    const [hintStage, setHintStage] = useState(0)
 
-    const WORD_LENGTH = chosenWord.length
+    const WORD_LENGTH = chosenWordKey.length
 
     const processInput = (inputKey) => {
         if (currentRow >= 6) return;
 
         if (inputKey === 'Enter') {
-            const targetLength = chosenWord.replace(/\s/g, '').length;
+            const targetLength = chosenWordKey.replace(/\s/g, '').length;
             if (currentGuess.length === targetLength) {
                 let formattedGuess = '';
                 let guessCursor = 0;
 
                 for (let i = 0; i < WORD_LENGTH; i++) {
-                    if (chosenWord[i] === ' ') {
+                    if (chosenWordKey[i] === ' ') {
                         formattedGuess += ' ';
                     } else {
                         formattedGuess += currentGuess[guessCursor];
@@ -47,7 +48,7 @@ function Game() {
         } else if (inputKey === 'Backspace') {
             setCurrentGuess(currentGuess.slice(0, -1));
         } else if (/^[a-zA-Z]$/.test(inputKey)) {
-            const targetLength = chosenWord.replace(/\s/g, '').length;
+            const targetLength = chosenWordKey.replace(/\s/g, '').length;
             if (currentGuess.length < targetLength) {
                 setCurrentGuess(currentGuess + inputKey.toUpperCase());
             }
@@ -61,7 +62,7 @@ function Game() {
 
         window.addEventListener('keyup', handleKeyup);
         return () => window.removeEventListener('keyup', handleKeyup);
-    }, [currentGuess, currentRow, chosenWord, guesses, WORD_LENGTH]);
+    }, [currentGuess, currentRow, chosenWordKey, guesses, WORD_LENGTH]);
 
     const computeLetterStatuses = () => {
         const statusByLetter = {};
@@ -72,9 +73,9 @@ function Game() {
                 if (!letter || letter === ' ') continue;
 
                 let status = 'absent';
-                if (letter === chosenWord[j]) {
+                if (letter === chosenWordKey[j]) {
                     status = 'correct';
-                } else if (chosenWord.includes(letter)) {
+                } else if (chosenWordKey.includes(letter)) {
                     status = 'present';
                 }
 
@@ -94,7 +95,7 @@ function Game() {
         for (let j = 0; j < WORD_LENGTH; j++) {
             let letter;
             if (i === currentRow) {
-                if (chosenWord[j] === ' ') {
+                if (chosenWordKey[j] === ' ') {
                     letter = ' ';
                 } else if (guessIndex < currentGuess.length) {
                     letter = currentGuess[guessIndex++];
@@ -106,14 +107,14 @@ function Game() {
             }
 
             let className = "cell";
-            if (chosenWord[j] === ' ') {
+            if (chosenWordKey[j] === ' ') {
                 className += " space";
             }
 
             if (i < currentRow) {
-                if (letter === chosenWord[j]) {
+                if (letter === chosenWordKey[j]) {
                     className += " correct";
-                } else if (chosenWord.includes(letter)) {
+                } else if (chosenWordKey.includes(letter)) {
                     className += " present";
                 } else {
                     className += " absent";
@@ -134,32 +135,37 @@ function Game() {
         processInput(value);
     };
 
-    const hasWon = guesses.includes(chosenWord);
+    const hasWon = guesses.includes(chosenWordKey);
     const hasLost = currentRow >= 6 && !hasWon;
 
     const handleHint = () => {
-        if (hintUsed || hasWon || hasLost) return;
-        const nonSpaceIndices = [];
-        for (let i = 0; i < chosenWord.length; i++) {
-            if (chosenWord[i] !== ' ') nonSpaceIndices.push(i);
+        if (hasWon || hasLost) return;
+        if (hintStage === 0) {
+            const nonSpaceIndices = [];
+            for (let i = 0; i < chosenWordKey.length; i++) {
+                if (chosenWordKey[i] !== ' ') nonSpaceIndices.push(i);
+            }
+            const targetLength = nonSpaceIndices.length;
+            if (currentGuess.length >= targetLength) return;
+            const revealChar = chosenWordKey[nonSpaceIndices[currentGuess.length]];
+            setCurrentGuess(currentGuess + revealChar.toUpperCase());
+            setHintStage(1);
+        } else if (hintStage === 1) {
+            setHintStage(2);
         }
-        const targetLength = nonSpaceIndices.length;
-        if (currentGuess.length >= targetLength) return;
-        const revealChar = chosenWord[nonSpaceIndices[currentGuess.length]];
-        setCurrentGuess(currentGuess + revealChar.toUpperCase());
-        setHintUsed(true);
     };
 
     const resetGame = () => {
-        const randomIndex = Math.floor(Math.random() * words.length)
-        const nextWord = words[randomIndex]
+        const keys = Object.keys(GENZ_DICTIONARY)
+        const randomIndex = Math.floor(Math.random() * keys.length)
+        const nextWord = keys[randomIndex]
         console.log(nextWord)
-        setChosenWord(nextWord)
+        setChosenWordKey(nextWord)
         setGuesses(Array(6).fill(""))
         setCurrentGuess("")
         setCurrentRow(0)
         setRevealedRow(-1)
-        setHintUsed(false)
+        setHintStage(0)
     };
 
     const letterStatuses = computeLetterStatuses();
@@ -191,21 +197,26 @@ function Game() {
             <div className="topbar">
                 <div className="brand">made by Angad (Xoro88)</div>
                 <button
-                    className={`hint-btn${hintUsed ? ' used' : ''}`}
+                    className={`hint-btn${hintStage > 0 ? ' used' : ''}`}
                     onClick={handleHint}
-                    disabled={hintUsed || hasWon || hasLost}
+                    disabled={hintStage >= 2 || hasWon || hasLost}
                     aria-label="Reveal one letter"
-                    title={hintUsed ? 'Hint used' : 'Reveal one letter'}
-                    data-tip={hintUsed ? 'Hint used' : 'LOL is it that hard to guess the word?, ok here is a hint, but only 1 :)'}
+                    title={hintStage >= 2 ? 'Hints used' : (hintStage === 1 ? 'Reveal description' : 'Reveal one letter')}
+                    data-tip={hintStage >= 2 ? 'Hints used' : (hintStage === 1 ? 'Reveals a short description' : 'LOL is it that hard to guess the word?, ok here is a hint, but only 1 :)')}
                 >
                     💡 Hint
                 </button>
             </div>
             <h1 className="title">Brainrot Wordle</h1>
+            {hintStage === 2 && (
+                <div className="banner banner-hint">
+                    {GENZ_DICTIONARY[chosenWordKey]}
+                </div>
+            )}
             {hasLost && (
                 <div className="banner banner-loss">
                     <span>Out of tries. Solution:</span>
-                    <strong className="solution">{chosenWord}</strong>
+                    <strong className="solution">{chosenWordKey}</strong>
                 </div>
             )}
             <div className="game">
