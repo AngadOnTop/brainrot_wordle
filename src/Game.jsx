@@ -390,7 +390,7 @@ function Game() {
                 </button>
             </div>
             <h1 className="title">Brainrot Wordle</h1>
-            {hintStage === 2 && (
+            {(hintStage === 2 || hasWon || hasLost) && (
                 <div className="banner banner-hint">
                     {GENZ_DICTIONARY[chosenWordKey]}
                 </div>
