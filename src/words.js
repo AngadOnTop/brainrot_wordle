@@ -61,7 +61,6 @@ const GENZ_DICTIONARY = {
   "GASLIGHT": "manipulating someone into doubting reality",
   "GIRLBOSS": "a confident, ambitious woman",
   "NPC": "acting boring or robotic, like a background character",
-  "CAUGHT IN 4K": "caught doing something bad clearly",
   "WILDIN": "acting crazy or out of pocket",
   "BADDIE": "confident and attractive person",
   "CRYING RN": "something is so funny it makes you cry",
