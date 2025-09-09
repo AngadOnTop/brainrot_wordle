@@ -30,7 +30,7 @@ Clone the repo and install dependencies:
 
 ```bash
 git clone https://github.com/AngadOnTop/brainrot_wordle
-cd brainrot_wordle/brainrot-wordle
+cd brainrot-wordle
 npm ci
 ```
 
