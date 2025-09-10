@@ -254,7 +254,7 @@ body {
 .actions {
     display: flex;
     justify-content: center;
-    margin: 12px 0 6px;
+    margin: 12px 0 40px;
 }
 
 .btn {

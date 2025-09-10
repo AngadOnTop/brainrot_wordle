@@ -188,7 +188,7 @@ function Game() {
     const WORD_LENGTH = chosenWordKey.length
 
     const processInput = (inputKey) => {
-        if (currentRow >= 6) return;
+        if (currentRow >= 6 || hasWon) return;
 
         if (inputKey === 'Enter') {
             const targetLength = chosenWordKey.replace(/\s/g, '').length;
@@ -224,12 +224,10 @@ function Game() {
                 window.setTimeout(() => setRevealedRow(-1), revealDurationMs);
             }
         } else if (inputKey === 'Backspace') {
-            playBackspace()
             setCurrentGuess(currentGuess.slice(0, -1));
         } else if (/^[a-zA-Z]$/.test(inputKey)) {
             const targetLength = chosenWordKey.replace(/\s/g, '').length;
             if (currentGuess.length < targetLength) {
-                playKeyClick()
                 setCurrentGuess(currentGuess + inputKey.toUpperCase());
             }
         }
@@ -409,17 +407,19 @@ function Game() {
                     <button className="btn" onClick={resetGame}>New Game</button>
                 </div>
             )}
-            <div className="keyboard">
-                <div className="keyboard-row">
-                    {firstRowKeys.map(renderKey)}
+            {!(hasWon || hasLost) && (
+                <div className="keyboard">
+                    <div className="keyboard-row">
+                        {firstRowKeys.map(renderKey)}
+                    </div>
+                    <div className="keyboard-row">
+                        {secondRowKeys.map(renderKey)}
+                    </div>
+                    <div className="keyboard-row">
+                        {thirdRowKeys.map(renderKey)}
+                    </div>
                 </div>
-                <div className="keyboard-row">
-                    {secondRowKeys.map(renderKey)}
-                </div>
-                <div className="keyboard-row">
-                    {thirdRowKeys.map(renderKey)}
-                </div>
-            </div>
+            )}
         </>
     )
 }
